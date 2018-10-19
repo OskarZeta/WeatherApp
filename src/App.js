@@ -1,37 +1,48 @@
 import React, { Component } from 'react';
+import { Switch, Route, Link } from 'react-router-dom';
 import logo from './logo.svg';
 import './css/style.css';
-//import TestComponent from './TestComponent';
-import SearchedCity from './Containers/SearchCity';
-import WeatherShow from './Containers/WeatherShow';
+import Search from './Components/Search';
+import City from './Components/City';
+import FavoritesList from './Components/FavoritesList';
 import axios from 'axios';
 
 const ApiKey = '4eb2a505a495b93451e7abc17924062b';
 
+const defaultCity = {
+  id: 2643743,
+  name: "London",
+  country: "GB",
+  lon: -0.12574,
+  lat: 51.50853,
+  isFavorite: false
+};
+
 class App extends Component {
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.state = {
-      currentCity: {
-        id: 2643743,
-        name: "London",
-        country: "GB",
-        lon: -0.12574,
-        lat: 51.50853
-      },
+      id: 2643743,
+      name: "London",
+      country: "GB",
+      lon: -0.12574,
+      lat: 51.50853,
+      isFavorite: false,
       weather: [],
-      loading: true
+      favorites: JSON.parse(localStorage.getItem('favorites')) || [],
+      loading: true,
+      error: false
     };
     this.searchClick = this.searchClick.bind(this);
-    //   this.state = {
-    //     currentCity: {
-    //       id: 2643743,
-    //       name: "London"
-    //     }
-    //   };
-    //   this.someMethod = this.someMethod.bind(this);
+    this.favoritesHandler = this.favoritesHandler.bind(this);
+    this.showFavoriteCity = this.showFavoriteCity.bind(this);
   }
-  fetchData(method, days){
+  fetchData(method){
+    //console.log(method.id);
+    this.setState({
+      loading: true,
+      error: false
+    });
     let url;
     switch (method.name) {
       case 'geo' : {
@@ -52,32 +63,90 @@ class App extends Component {
     }
     axios.get(url)
       .then((response) => {
-      //console.log(response);
-        this.setState({
-          currentCity: {
-            // id: response.data.city.id,
-            // name: response.data.city.name,
-            // country: response.data.city.country,
-            // lon: response.data.city.coord.lon,
-            // lat: response.data.city.coord.lat
+        //console.log(response);
+        this.setState((state) => {
+          return {
+            //currentCity: {
             id: response.data.id,
             name: response.data.name,
             country: response.data.sys.country,
             lon: response.data.coord.lon,
-            lat: response.data.coord.lat
-          },
-          weather: response.data,
-          loading: false
+            lat: response.data.coord.lat,
+            isFavorite: state.favorites.length !== 0 ? !!state.favorites.find((city) => {
+                return city.id === response.data.id;
+              }) : false,
+            //},
+            weather: response.data,
+            loading: false,
+            error: false
+          }
         });
       })
       .catch((error) => {
         console.log(error);
+        this.setState({
+          loading: false,
+          error: true
+        });
       });
   }
-  searchClick(e){
-    //console.log(this.state, this.props);
+  searchClick(){
+    //console.log(this.props);
     let searchField = document.querySelector('.search__field');
     this.fetchData({name: 'query', query: searchField.value});
+  }
+  favoritesHandler(id){
+    if (!id) {
+      if (!this.state.isFavorite) {
+        this.setState((state) => {
+          state.favorites.push({
+            id: state.id,
+            name: state.name,
+            country: state.country,
+            lon: state.lon,
+            lat: state.lat,
+            isFavorite: true
+          });
+        });
+      } else {
+        this.setState((state) => {
+          let index = state.favorites.indexOf(state.favorites.find((city) => {
+            return city.id === state.id;
+          }));
+          state.favorites.splice(index, 1);
+        });
+      }
+      this.setState((state) => {
+        return state.isFavorite = !state.isFavorite;
+      });
+    } else {
+      if (this.state.id === id) {
+        this.setState({
+          isFavorite : false
+        });
+      }
+      this.setState((state) => {
+        let index = state.favorites.indexOf(state.favorites.find((city) => {
+          return city.id === id;
+        }));
+        return state.favorites.splice(index, 1);
+      });
+    }
+  }
+  showFavoriteCity(props){
+    // this.setState({
+    //   id: props.id,
+    //   name: props.name,
+    //   country: props.country,
+    //   lon: props.lon,
+    //   lat: props.lat,
+    //   isFavorite: props.isFavorite
+    // }, () => {
+    //   this.fetchData({name: 'id', id: this.state.id}, true);
+    //   props.history.push('/');
+    // });
+    this.fetchData({name: 'id', id: props.id});
+    props.history.push('/');
   }
   componentDidMount(){
     if ("geolocation" in navigator) {
@@ -87,31 +156,57 @@ class App extends Component {
         },
         (error) => {
           console.log(error);
-          this.fetchData({name: 'id', id: this.state.currentCity.id});
+          this.fetchData({name: 'id', id: this.state.id});
         }
       );
     } else {
-
+      console.log('geolocation is not allowed');
     }
   }
-  componentDidUpdate(prevProps){
-
+  componentDidUpdate(prev){
+    localStorage.setItem('favorites', JSON.stringify(this.state.favorites));
   }
   render() {
     return (
-      <div className="App" onClick={this.someMethod}>
-        <header className="App-header">
-          <h1>WeatherApp</h1>
-          <SearchedCity
-            clickHandler={this.searchClick}
-          />
-        </header>
-        <WeatherShow
-          city={this.state.currentCity}
-          weather={this.state.weather}
-          loading={this.state.loading}
-        />
-      </div>
+      <Switch>
+        <Route exact path="/" render={(props) => {
+          //console.log(props.location.search.split('=')[1]);
+          return(
+            <div className="App">
+              <header className="App-header">
+                <h1>WeatherApp</h1>
+                <Search clickHandler={this.searchClick} history={props.history}/>
+                <Link to="/favorites">Favorite Cities</Link>
+              </header>
+              {this.state.loading && <div>Loading</div>}
+              {this.state.error && <div>No data available</div>}
+              {!this.state.loading && !this.state.error &&
+                <City
+                  id={this.state.id}
+                  name={this.state.name}
+                  isFavorite={this.state.isFavorite}
+                  weather={this.state.weather}
+                  clickHandler={this.favoritesHandler}
+                />
+              }
+            </div>
+          );
+        }}>
+        </Route>
+        <Route path="/favorites">
+          <div className="App">
+            <header className="App-header">
+              <h1>WeatherApp</h1>
+              <Link to="/">Home</Link>
+            </header>
+            <FavoritesList
+              favorites={this.state.favorites}
+              favoritesHandler={this.favoritesHandler}
+              showFavoriteCity={this.showFavoriteCity}
+            />
+          </div>
+        </Route>
+      </Switch>
     );
   }
 }
