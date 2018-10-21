@@ -1,0 +1,129 @@
+.header{
+  margin-bottom: 10px;
+}
+.header__wrapper{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.header__wrapper-lower{
+  display: flex;
+  justify-content: space-around;
+  min-width: 300px;
+  margin: 10px 0;
+}
+.header__btn{
+  border: none;
+  text-decoration: none;
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background-color: #d7d7d7;
+  color: inherit;
+  width: 120px;
+}
+.header__btn:hover{
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.header__btn-text{
+  font-size: 14px;
+  margin-right: 10px;
+}
+.header__icon{
+  width: 20px;
+  height: 20px;
+}
+.header__search-wrapper{
+  min-width: 300px;
+  position: relative;
+}
+.header__search-field{
+  padding-right: 50px;
+}
+.header__search-field:focus{
+  box-shadow: none;
+  border-color: #a8aeb4;
+  //border-color: #ced4da;
+}
+.header__search-btn{
+  position: absolute;
+  top: 0;
+  right: 15px;
+  height: 100%;
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border: none;
+}
+.header__search-text{
+  display: none;
+}
+
+@media (min-width: 576px) {
+  .header__wrapper{
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .header__wrapper-lower{
+    padding: 0;
+    margin: 0;
+    min-width: unset;
+  }
+  .header__btn{
+    padding: 5px;
+    border-radius: 5px;
+    width: 80px;
+  }
+  .header__btn-text{
+    margin: 0;
+  }
+  .header__search-field{
+    padding-right: 100px;
+  }
+  .header__search-text{
+    display: inline;
+    font-size: 14px;
+  }
+  .header__icon{
+    display: none;
+  }
+  .header__search-icon{
+    display: none;
+  }
+  .header__search-btn{
+    position: absolute;
+    top: 0;
+    right: 12px;
+    height: 100%;
+    width: auto;
+    padding: 0 10px;
+  }
+}
+
+@media (min-width: 768px) {
+  .header__btn-text{
+    font-size: 16px;
+  }
+  .header__btn, .header__search-btn{
+    width: 100px;
+  }
+}
+
+@media (min-width: 992px) {
+  .header__btn, .header__search-btn{
+    width: 130px;
+    justify-content: space-between;
+    padding: 0 15px;
+  }
+  .header__icon{
+    display: block;
+  }
+}
