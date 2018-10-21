@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { Switch, Route, Link } from 'react-router-dom';
-import Spinner from './Components/Spinner';
-import Search from './Components/Search';
-import City from './Components/City';
-import FavoritesList from './Components/FavoritesList';
+import Spinner from './Spinner';
+import Header from './Header';
+import HeaderFavorites from './HeaderFavorites';
+import Search from './Search';
+import City from './City';
+import FavoritesList from './FavoritesList';
 import axios from 'axios';
 
-const ApiKey = '4eb2a505a495b93451e7abc17924062b';
+const apiKey = '4eb2a505a495b93451e7abc17924062b';
 
 const defaultCity = {
   id: 2643743,
@@ -38,7 +40,6 @@ class App extends Component {
     this.loadDefaultCity = this.loadDefaultCity.bind(this);
   }
   fetchData(method){
-    //console.log(method.id);
     this.setState({
       loading: true,
       error: false
@@ -46,15 +47,15 @@ class App extends Component {
     let url;
     switch (method.name) {
       case 'geo' : {
-        url = `https://api.openweathermap.org/data/2.5/weather?lat=${method.lat}&lon=${method.lon}&appid=${ApiKey}`;
+        url = `https://api.openweathermap.org/data/2.5/weather?lat=${method.lat}&lon=${method.lon}&appid=${apiKey}`;
         break;
       }
       case 'id' : {
-        url = `https://api.openweathermap.org/data/2.5/weather?id=${method.id}&appid=${ApiKey}`;
+        url = `https://api.openweathermap.org/data/2.5/weather?id=${method.id}&appid=${apiKey}`;
         break;
       }
       case 'query' : {
-        url = `https://api.openweathermap.org/data/2.5/weather?q=${method.query}&appid=${ApiKey}`;
+        url = `https://api.openweathermap.org/data/2.5/weather?q=${method.query}&appid=${apiKey}`;
         break;
       }
       default : throw new Error(
@@ -63,7 +64,7 @@ class App extends Component {
     }
     axios.get(url)
       .then((response) => {
-        //console.log(response);
+        //console.log(response.data);
         this.setState((state) => {
           return {
             id: response.data.id,
@@ -89,7 +90,7 @@ class App extends Component {
       });
   }
   searchClick(){
-    let searchField = document.querySelector('.search__field');
+    let searchField = document.querySelector('.header__search-field');
     this.fetchData({name: 'query', query: searchField.value});
   }
   favoritesHandler(id){
@@ -161,13 +162,11 @@ class App extends Component {
         <Route exact path="/" render={(props) => {
           //console.log(props.location.search.split('=')[1]);
           return(
-            <div className="App container">
-              <header className="App-header">
-                <h1>WeatherApp</h1>
-                <Search clickHandler={this.searchClick} history={props.history}/>
-                <Link to="/favorites">Favorite Cities</Link>
-                <button onClick={this.loadDefaultCity}>Home city</button>
-              </header>
+            <div className="App">
+              <Header
+                loadDefaultCity={this.loadDefaultCity}
+                searchClick={this.searchClick}
+              />
               {this.state.loading && <Spinner/>}
               {this.state.error && <div>No data available</div>}
               {!this.state.loading && !this.state.error &&
@@ -185,10 +184,7 @@ class App extends Component {
         </Route>
         <Route path="/favorites">
           <div className="App">
-            <header className="App-header">
-              <h1>WeatherApp</h1>
-              <Link to="/">Home</Link>
-            </header>
+            <HeaderFavorites/>
             <FavoritesList
               favorites={this.state.favorites}
               favoritesHandler={this.favoritesHandler}
