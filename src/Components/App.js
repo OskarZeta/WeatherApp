@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Switch, Route, Link } from 'react-router-dom';
-import logo from './logo.svg';
-import './css/style.css';
+import Spinner from './Components/Spinner';
 import Search from './Components/Search';
 import City from './Components/City';
 import FavoritesList from './Components/FavoritesList';
@@ -36,6 +35,7 @@ class App extends Component {
     this.searchClick = this.searchClick.bind(this);
     this.favoritesHandler = this.favoritesHandler.bind(this);
     this.showFavoriteCity = this.showFavoriteCity.bind(this);
+    this.loadDefaultCity = this.loadDefaultCity.bind(this);
   }
   fetchData(method){
     //console.log(method.id);
@@ -66,16 +66,14 @@ class App extends Component {
         //console.log(response);
         this.setState((state) => {
           return {
-            //currentCity: {
             id: response.data.id,
             name: response.data.name,
             country: response.data.sys.country,
             lon: response.data.coord.lon,
             lat: response.data.coord.lat,
             isFavorite: state.favorites.length !== 0 ? !!state.favorites.find((city) => {
-                return city.id === response.data.id;
-              }) : false,
-            //},
+              return city.id === response.data.id;
+            }) : false,
             weather: response.data,
             loading: false,
             error: false
@@ -91,7 +89,6 @@ class App extends Component {
       });
   }
   searchClick(){
-    //console.log(this.props);
     let searchField = document.querySelector('.search__field');
     this.fetchData({name: 'query', query: searchField.value});
   }
@@ -134,21 +131,10 @@ class App extends Component {
     }
   }
   showFavoriteCity(props){
-    // this.setState({
-    //   id: props.id,
-    //   name: props.name,
-    //   country: props.country,
-    //   lon: props.lon,
-    //   lat: props.lat,
-    //   isFavorite: props.isFavorite
-    // }, () => {
-    //   this.fetchData({name: 'id', id: this.state.id}, true);
-    //   props.history.push('/');
-    // });
     this.fetchData({name: 'id', id: props.id});
     props.history.push('/');
   }
-  componentDidMount(){
+  loadDefaultCity(){
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -156,12 +142,15 @@ class App extends Component {
         },
         (error) => {
           console.log(error);
-          this.fetchData({name: 'id', id: this.state.id});
+          this.fetchData({name: 'id', id: defaultCity.id});
         }
       );
     } else {
       console.log('geolocation is not allowed');
     }
+  }
+  componentDidMount(){
+    this.loadDefaultCity();
   }
   componentDidUpdate(prev){
     localStorage.setItem('favorites', JSON.stringify(this.state.favorites));
@@ -172,13 +161,14 @@ class App extends Component {
         <Route exact path="/" render={(props) => {
           //console.log(props.location.search.split('=')[1]);
           return(
-            <div className="App">
+            <div className="App container">
               <header className="App-header">
                 <h1>WeatherApp</h1>
                 <Search clickHandler={this.searchClick} history={props.history}/>
                 <Link to="/favorites">Favorite Cities</Link>
+                <button onClick={this.loadDefaultCity}>Home city</button>
               </header>
-              {this.state.loading && <div>Loading</div>}
+              {this.state.loading && <Spinner/>}
               {this.state.error && <div>No data available</div>}
               {!this.state.loading && !this.state.error &&
                 <City
