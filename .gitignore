@@ -17,6 +17,8 @@
 .env.production.local
 .idea
 package-lock.json
+App.test.js
+trash
 
 npm-debug.log*
 yarn-debug.log*
