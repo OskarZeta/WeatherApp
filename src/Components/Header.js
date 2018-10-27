@@ -12,9 +12,9 @@ const Header = (props) => {
           <Search clickHandler={props.searchClick} history={props.history}/>
           <div className="header__wrapper-lower col-4 col-sm-4 col-md-4">
             <ShowDefaultCity clickHandler={props.loadDefaultCity}/>
-            <Link className="header__btn" to="/favorites">
+            <Link className="header__btn header__btn--favorites" to="/favorites">
               <span className="header__btn-text">Favorites</span>
-              <img className="header__icon" src="star.svg"/>
+              <img className="header__icon" src="star.svg" alt="fav-img"/>
             </Link>
           </div>
         </div>

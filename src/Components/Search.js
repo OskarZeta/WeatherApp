@@ -6,7 +6,7 @@ const Search = (props) => {
       <input className="header__search-field form-control" type="search" />
       <button className="header__search-btn" onClick={props.clickHandler}>
         <span className="header__search-text">Search city</span>
-        <img className="header__search-icon header__icon" src="loupe.svg"/>
+        <img className="header__search-icon header__icon" src="loupe.svg" alt="search"/>
       </button>
     </div>
   );

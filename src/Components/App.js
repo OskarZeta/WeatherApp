@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Switch, Route, Link } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import Spinner from './Spinner';
 import Header from './Header';
 import HeaderFavorites from './HeaderFavorites';
-import Search from './Search';
 import City from './City';
 import FavoritesList from './FavoritesList';
 import axios from 'axios';
@@ -19,21 +18,18 @@ const defaultCity = {
   isFavorite: false
 };
 
+const initialState = {
+  ...defaultCity,
+  weather: [],
+  favorites: JSON.parse(localStorage.getItem('favorites')) || [],
+  loading: true,
+  error: false
+};
+
 class App extends Component {
   constructor(props){
     super(props);
-    this.state = {
-      id: 2643743,
-      name: "London",
-      country: "GB",
-      lon: -0.12574,
-      lat: 51.50853,
-      isFavorite: false,
-      weather: [],
-      favorites: JSON.parse(localStorage.getItem('favorites')) || [],
-      loading: true,
-      error: false
-    };
+    this.state = initialState;
     this.searchClick = this.searchClick.bind(this);
     this.favoritesHandler = this.favoritesHandler.bind(this);
     this.showFavoriteCity = this.showFavoriteCity.bind(this);
@@ -47,15 +43,15 @@ class App extends Component {
     let url;
     switch (method.name) {
       case 'geo' : {
-        url = `https://api.openweathermap.org/data/2.5/weather?lat=${method.lat}&lon=${method.lon}&appid=${apiKey}`;
+        url = `https://api.openweathermap.org/data/2.5/forecast?lat=${method.lat}&lon=${method.lon}&appid=${apiKey}`;
         break;
       }
       case 'id' : {
-        url = `https://api.openweathermap.org/data/2.5/weather?id=${method.id}&appid=${apiKey}`;
+        url = `https://api.openweathermap.org/data/2.5/forecast?id=${method.id}&appid=${apiKey}`;
         break;
       }
       case 'query' : {
-        url = `https://api.openweathermap.org/data/2.5/weather?q=${method.query}&appid=${apiKey}`;
+        url = `https://api.openweathermap.org/data/2.5/forecast?q=${method.query}&appid=${apiKey}`;
         break;
       }
       default : throw new Error(
@@ -64,18 +60,17 @@ class App extends Component {
     }
     axios.get(url)
       .then((response) => {
-        //console.log(response.data);
         this.setState((state) => {
           return {
-            id: response.data.id,
-            name: response.data.name,
-            country: response.data.sys.country,
-            lon: response.data.coord.lon,
-            lat: response.data.coord.lat,
+            id: response.data.city.id,
+            name: response.data.city.name,
+            country: response.data.city.country,
+            lon: response.data.city.coord.lon,
+            lat: response.data.city.coord.lat,
             isFavorite: state.favorites.length !== 0 ? !!state.favorites.find((city) => {
-              return city.id === response.data.id;
+              return city.id === response.data.city.id;
             }) : false,
-            weather: response.data,
+            weather: response.data.list,
             loading: false,
             error: false
           }
@@ -160,7 +155,6 @@ class App extends Component {
     return (
       <Switch>
         <Route exact path="/" render={(props) => {
-          //console.log(props.location.search.split('=')[1]);
           return(
             <div className="App">
               <Header
@@ -173,6 +167,7 @@ class App extends Component {
                 <City
                   id={this.state.id}
                   name={this.state.name}
+                  country={this.state.country}
                   isFavorite={this.state.isFavorite}
                   weather={this.state.weather}
                   clickHandler={this.favoritesHandler}

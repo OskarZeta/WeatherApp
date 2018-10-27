@@ -7,7 +7,9 @@ const HeaderFavorites = (props) => {
       <div className="container">
         <h1>WeatherApp</h1>
         <div className="header__wrapper">
-          <Link to="/">Home</Link>
+          <Link className="header__btn header__btn--homepage" to="/">
+            <span className="header__btn-text">Home</span>
+          </Link>
         </div>
       </div>
     </header>
