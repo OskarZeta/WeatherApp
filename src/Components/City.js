@@ -53,7 +53,6 @@ const City = (props) => {
     return metering.dt_txt.includes(props.weather[props.weather.length - 1].dt_txt.split(' ')[0]);
   });
   const  fifthDayFiltered = fifthDay.find((metering) => {return metering.dt_txt.split(' ')[1] === '12:00:00';}) || fifthDay[fifthDay.length - 1];
-  console.log(fifthDayFiltered);
   return (
     <div className="city">
       <div className="container city__container" style={{boxShadow: '0px 15px 10px 10px' + calcColor(weatherCurrent.main.temp)}}>
