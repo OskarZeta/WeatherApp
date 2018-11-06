@@ -1,3 +1,7 @@
+A simple application to view weather forecasts (up to 5 days)
+
+https://oskarzeta.github.io/WeatherApp/
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
